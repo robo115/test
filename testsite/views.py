@@ -26,3 +26,33 @@ def sorting(request, product_name):
                 group_index += 1
             else:
                 break
+
+
+def product_list(request):
+    products = Product.objects.all()
+    available_products = []
+    for product in products:
+        all_users = User.objects.all().count()
+        groups = Group.objects.filter(product=product).count()
+        users = User.objects.filter(product=product).count()
+        lessons = Lesson.objects.filter(product=product).count()
+        fullness = users / (product.max_in_group * groups) * 100
+        popularity = (all_users / users) * 100
+        if users / groups < product.max_in_group:
+            product_api = {
+                "name": product.name,
+                "author": product.autor,
+                "start_date": product.start_date,
+                "price": product.price,
+                "lessons": lessons,
+                "users_in_product": users,
+                "fullness": fullness,
+                "popularity": popularity
+            }
+            available_products.append(product_api)
+        else:
+            continue
+    context = {
+        "available_products": available_products
+    }
+    return context  # need return template with context but i dont have template
